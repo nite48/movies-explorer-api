@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const { getMovies, createMovies, deleteMovies } = require('../controllers/movies');
 // const { isURL } = require("validator");
 const regExp = /^https?:\/\/(www.)?[a-zA-Z0-9-.]+\.[a-zA-Z]{2,}([a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]+)*#*$/;
 
@@ -18,14 +19,11 @@ router.post('/', celebrate({
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
   }),
-}), postMovies);
-router.delete(
-  '/:movieId',
-  celebrate({
-    params: Joi.object().keys({
-      movieId: Joi.string().required().length(24).hex(),
-    }),
+}), createMovies);
+
+router.delete('/:movieId', celebrate({
+  params: Joi.object().keys({
+    movieId: Joi.string().required().length(24).hex(),
   }),
-  deleteMovies
-);
+}), deleteMovies);
 module.exports = router;
