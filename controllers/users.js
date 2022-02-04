@@ -5,6 +5,7 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const InternalError = require('../errors/InternalError');
+const NotFoundError = require('../errors/NotFoundError');
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
@@ -49,6 +50,50 @@ module.exports.createUser = (req, res, next) => {
         next(
           new ConflictError('Пользователь с данным email уже зарегестрирован'),
         );
+      } else {
+        next(new InternalError(err));
+      }
+    });
+};
+
+module.exports.getUser = (req, res, next) => {
+  console.info(req.method, req.headers.host);
+  User.findById(req.params.userId)
+    .then((user) => {
+      if (user) {
+        res.send({ user });
+      } else {
+        next(new NotFoundError('Пользователь не найден'));
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы неверные данные'));
+      } else {
+        next(new InternalError(err));
+      }
+    });
+};
+
+module.exports.updateUser = (req, res, next) => {
+  console.info(req.method, req.headers.host);
+  const { name, email } = req.body;
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, email },
+    { new: true, runValidators: true },
+  )
+    .then((user) => {
+      if (!user) {
+        next(new NotFoundError('Пользователь не найден'));
+      } else {
+        res.status(200).send(user);
+      }
+    })
+    .catch((err) => {
+      console.info(err.name);
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы неверные данные'));
       } else {
         next(new InternalError(err));
       }
