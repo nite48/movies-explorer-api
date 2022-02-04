@@ -1,8 +1,14 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const { isURL } = require('validator');
 const { getMovies, createMovies, deleteMovies } = require('../controllers/movies');
-// const { isURL } = require("validator");
-const regExp = /^https?:\/\/(www.)?[a-zA-Z0-9-.]+\.[a-zA-Z]{2,}([a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]+)*#*$/;
+
+const checkURL = (value) => {
+  if (!isURL(value, { require_protocol: true })) {
+    throw new Error('Неправильный формат ссылки');
+  }
+  return value;
+};
 
 router.get('/', getMovies);
 router.post('/', celebrate({
@@ -12,9 +18,9 @@ router.post('/', celebrate({
     duration: Joi.number().required(),
     year: Joi.string().required(),
     description: Joi.string().required(),
-    image: Joi.string().required().pattern(regExp),
-    trailer: Joi.string().required().pattern(regExp),
-    thumbnail: Joi.string().required().pattern(regExp),
+    image: Joi.string().required().custom(checkURL),
+    trailerLink: Joi.string().required().custom(checkURL),
+    thumbnail: Joi.string().required().custom(checkURL),
     movieId: Joi.number().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
