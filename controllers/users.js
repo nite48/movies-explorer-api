@@ -58,7 +58,7 @@ module.exports.createUser = (req, res, next) => {
 
 module.exports.getUser = (req, res, next) => {
   console.info(req.method, req.headers.host);
-  User.findById(req.params.userId)
+  User.findById(req.user._id)
     .then((user) => {
       if (user) {
         res.send({ user });

@@ -16,7 +16,7 @@ module.exports.createMovies = (req, res, next) => {
   console.info(req.method, req.headers.host);
   const {
     country, director, duration, year, description,
-    image, trailer, nameRU, nameEN, thumbnail, movieId,
+    image, trailerLink, nameRU, nameEN, thumbnail, movieId,
   } = req.body;
   Movie.create({
     country,
@@ -25,7 +25,7 @@ module.exports.createMovies = (req, res, next) => {
     year,
     description,
     image,
-    trailer,
+    trailerLink,
     nameRU,
     nameEN,
     thumbnail,
@@ -48,13 +48,14 @@ module.exports.deleteMovies = (req, res, next) => {
       if (!movie) {
         return next(new NotFoundError('Не найден фильм по переданному id'));
       }
-      if (!movie.owner.equals(req.user._id)) {
+      if (movie.owner.toString() !== req.user._id) {
         return next(new ForbiddenError('Это не ваш фильм'));
       }
       return movie.remove()
         .then((result) => res.send(result));
     })
     .catch((err) => {
+      console.info(err);
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
