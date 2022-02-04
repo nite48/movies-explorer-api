@@ -9,3 +9,6 @@
 Запуск проекта
 npm run start — запускает сервер
 npm run dev — запускает сервер с hot-reload
+
+* [Link to server](https://api.movie.copy.project.nomoredomains.work/)
+* Публичный ip - 178.154.201.248
