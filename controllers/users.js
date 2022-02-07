@@ -12,7 +12,6 @@ module.exports.login = (req, res, next) => {
   const { NODE_ENV, JWT_SECRET } = process.env;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      console.info(req.method, req.headers.host);
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'secret', { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
@@ -31,7 +30,6 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
-  console.info(req.method, req.headers.host);
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -57,7 +55,6 @@ module.exports.createUser = (req, res, next) => {
 };
 
 module.exports.getUser = (req, res, next) => {
-  console.info(req.method, req.headers.host);
   User.findById(req.user._id)
     .then((user) => {
       if (user) {
@@ -76,7 +73,6 @@ module.exports.getUser = (req, res, next) => {
 };
 
 module.exports.updateUser = (req, res, next) => {
-  console.info(req.method, req.headers.host);
   const { name, email } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -91,7 +87,6 @@ module.exports.updateUser = (req, res, next) => {
       }
     })
     .catch((err) => {
-      console.info(err.name);
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new BadRequestError('Переданы неверные данные'));
       } else if (err.name === 'MongoServerError' && err.code === 11000) {

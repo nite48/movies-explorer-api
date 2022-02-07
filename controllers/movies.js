@@ -5,7 +5,6 @@ const ForbiddenError = require('../errors/ForbiddenError');
 const InternalError = require('../errors/InternalError');
 
 module.exports.getMovies = (req, res, next) => {
-  console.info(req.method, req.headers.host);
   const owner = req.user._id;
   Movie.find({ owner })
     .then((movies) => res.status(200).send(movies))
@@ -13,7 +12,6 @@ module.exports.getMovies = (req, res, next) => {
 };
 
 module.exports.createMovies = (req, res, next) => {
-  console.info(req.method, req.headers.host);
   const {
     country, director, duration, year, description,
     image, trailer, nameRU, nameEN, thumbnail, movieId,
