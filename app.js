@@ -1,25 +1,18 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
-const { errors, celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
+const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const userRouter = require('./routes/users');
-const movieRouter = require('./routes/movies');
-const { login, createUser } = require('./controllers/users');
-const auth = require('./middlewares/auth');
-const NotFoundError = require('./errors/NotFoundError');
 const cors = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const errorHandler = require('./middlewares/error-handler');
+const limiter = require('./middlewares/limiter');
+const routes = require('./routes/index');
 
-const { PORT = 3000 } = process.env;
-const app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(requestLogger);
-app.use(cookieParser());
-app.use(cors);
-
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
+mongoose.connect('mongodb://localhost:27017/moviesdb', {
   useNewUrlParser: true,
 }, (err) => {
   if (err) {
@@ -27,49 +20,26 @@ mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
   }
 });
 
+const { PORT = 3000 } = process.env;
+const app = express();
+app.use(limiter);
+app.use(helmet());
+app.use(cors);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(requestLogger);
+app.use(cookieParser());
+app.use(routes);
+
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
 
-app.post(
-  '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().email().required(),
-      password: Joi.string().min(8).required(),
-    }),
-  }),
-  login,
-);
-
-app.post(
-  '/signup',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().email().required(),
-      password: Joi.string().min(8).required(),
-      name: Joi.string().min(2).max(30),
-    }),
-  }),
-  createUser,
-);
-app.use(auth);
-app.use('/users', userRouter);
-app.use('/movies', movieRouter);
-
-app.use((req, res, next) => {
-  next(new NotFoundError('Страница не найдена'));
-});
 app.use(errorLogger);
 app.use(errors());
-
-app.use((err, req, res, next) => {
-  res.status(err.statusCode || 500);
-  res.send({ message: err.message || 'Неизвестная ошибка' });
-  next();
-});
+app.use(errorHandler);
 app.listen(PORT, () => {
   console.info(`Server work in port ${PORT}`);
 });

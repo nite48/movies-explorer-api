@@ -16,7 +16,7 @@ module.exports.createMovies = (req, res, next) => {
   console.info(req.method, req.headers.host);
   const {
     country, director, duration, year, description,
-    image, trailerLink, nameRU, nameEN, thumbnail, movieId,
+    image, trailer, nameRU, nameEN, thumbnail, movieId,
   } = req.body;
   Movie.create({
     country,
@@ -25,7 +25,7 @@ module.exports.createMovies = (req, res, next) => {
     year,
     description,
     image,
-    trailerLink,
+    trailer,
     nameRU,
     nameEN,
     thumbnail,
