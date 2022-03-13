@@ -3,6 +3,7 @@ const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const InternalError = require('../errors/InternalError');
+const ConflictError = require('../errors/ConflictError');
 
 module.exports.getMovies = (req, res, next) => {
   const owner = req.user._id;
@@ -34,6 +35,8 @@ module.exports.createMovies = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переднаны некорректные данные'));
+      } else if (err.name === 'MongoError' && err.code === 11000) {
+        next(new ConflictError('Данный фильм уже имеется в коллекции'));
       } else {
         next(new InternalError(err));
       }

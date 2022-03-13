@@ -8,6 +8,7 @@ const InternalError = require('../errors/InternalError');
 const NotFoundError = require('../errors/NotFoundError');
 
 module.exports.login = (req, res, next) => {
+  console.info(req.body);
   const { email, password } = req.body;
   const { NODE_ENV, JWT_SECRET } = process.env;
   return User.findUserByCredentials(email, password)
@@ -30,6 +31,7 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
+  console.info(req);
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -58,7 +60,7 @@ module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (user) {
-        res.send({ user });
+        res.status(200).send(user);
       } else {
         next(new NotFoundError('Пользователь не найден'));
       }
