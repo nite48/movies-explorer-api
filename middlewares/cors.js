@@ -5,7 +5,7 @@ const allowedCors = [
   'https://localhost:3000',
   'http://movie.copy.project.nomore.nomoredomains.work',
   'https://movie.copy.project.nomore.nomoredomains.work',
-  'http://192.168.43.184:3001',
+  'http://192.168.0.103:3000',
 ];
 
 module.exports = (req, res, next) => {
