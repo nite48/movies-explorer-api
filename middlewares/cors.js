@@ -3,8 +3,8 @@ const allowedCors = [
   'http://localhost:3002',
   'http://localhost:3000',
   'https://localhost:3000',
-  'http://insta.copy.project.nomoredomains.work',
-  'https://insta.copy.project.nomoredomains.work',
+  'http://movie.copy.project.nomoredomains.work',
+  'https://movie.copy.project.nomoredomains.work',
   'http://192.168.43.184:3001',
 ];
 
