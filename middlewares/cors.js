@@ -1,9 +1,11 @@
-/* eslint-disable consistent-return */
 const allowedCors = [
+  'http://localhost:3001',
+  'http://localhost:3002',
   'http://localhost:3000',
   'https://localhost:3000',
   'http://insta.copy.project.nomoredomains.work',
   'https://insta.copy.project.nomoredomains.work',
+  'http://192.168.43.184:3001',
 ];
 
 module.exports = (req, res, next) => {
@@ -20,7 +22,7 @@ module.exports = (req, res, next) => {
   if (method === 'OPTIONS') {
     res.header('Access-Control-Allow-Methods', DEFAULT_ALLOWED_METHODS);
     res.header('Access-Control-Allow-Headers', requestHeaders);
-    return res.end();
+    res.end();
   }
 
   next();

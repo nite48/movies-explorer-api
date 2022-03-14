@@ -8,11 +8,11 @@ const InternalError = require('../errors/InternalError');
 const NotFoundError = require('../errors/NotFoundError');
 
 module.exports.login = (req, res, next) => {
+  console.info(req.body);
   const { email, password } = req.body;
   const { NODE_ENV, JWT_SECRET } = process.env;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      console.info(req.method, req.headers.host);
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'secret', { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
@@ -31,7 +31,7 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
-  console.info(req.method, req.headers.host);
+  console.info(req);
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -57,11 +57,10 @@ module.exports.createUser = (req, res, next) => {
 };
 
 module.exports.getUser = (req, res, next) => {
-  console.info(req.method, req.headers.host);
   User.findById(req.user._id)
     .then((user) => {
       if (user) {
-        res.send({ user });
+        res.status(200).send(user);
       } else {
         next(new NotFoundError('Пользователь не найден'));
       }
@@ -76,7 +75,6 @@ module.exports.getUser = (req, res, next) => {
 };
 
 module.exports.updateUser = (req, res, next) => {
-  console.info(req.method, req.headers.host);
   const { name, email } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -91,9 +89,10 @@ module.exports.updateUser = (req, res, next) => {
       }
     })
     .catch((err) => {
-      console.info(err.name);
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new BadRequestError('Переданы неверные данные'));
+      } else if (err.name === 'MongoServerError' && err.code === 11000) {
+        next(new ConflictError('Пользователь с таким email уже существует'));
       } else {
         next(new InternalError(err));
       }

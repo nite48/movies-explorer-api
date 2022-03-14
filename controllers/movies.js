@@ -3,9 +3,9 @@ const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const InternalError = require('../errors/InternalError');
+const ConflictError = require('../errors/ConflictError');
 
 module.exports.getMovies = (req, res, next) => {
-  console.info(req.method, req.headers.host);
   const owner = req.user._id;
   Movie.find({ owner })
     .then((movies) => res.status(200).send(movies))
@@ -13,10 +13,9 @@ module.exports.getMovies = (req, res, next) => {
 };
 
 module.exports.createMovies = (req, res, next) => {
-  console.info(req.method, req.headers.host);
   const {
     country, director, duration, year, description,
-    image, trailerLink, nameRU, nameEN, thumbnail, movieId,
+    image, trailer, nameRU, nameEN, thumbnail, movieId,
   } = req.body;
   Movie.create({
     country,
@@ -25,7 +24,7 @@ module.exports.createMovies = (req, res, next) => {
     year,
     description,
     image,
-    trailerLink,
+    trailer,
     nameRU,
     nameEN,
     thumbnail,
@@ -36,6 +35,8 @@ module.exports.createMovies = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переднаны некорректные данные'));
+      } else if (err.name === 'MongoError' && err.code === 11000) {
+        next(new ConflictError('Данный фильм уже имеется в коллекции'));
       } else {
         next(new InternalError(err));
       }
