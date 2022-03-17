@@ -8,7 +8,6 @@ const InternalError = require('../errors/InternalError');
 const NotFoundError = require('../errors/NotFoundError');
 
 module.exports.login = (req, res, next) => {
-  console.info(req.body);
   const { email, password } = req.body;
   const { NODE_ENV, JWT_SECRET } = process.env;
   return User.findUserByCredentials(email, password)
@@ -31,17 +30,15 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
-  console.info(req);
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
+  console.info(req.body);
+  const { email, password, name } = req.body;
   bcrypt
     .hash(password, 10)
     .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
+      name, email, password: hash,
     }))
     .then(() => res.status(200).send({
-      name, about, avatar, email,
+      name, email,
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -97,4 +94,16 @@ module.exports.updateUser = (req, res, next) => {
         next(new InternalError(err));
       }
     });
+};
+module.exports.logout = (req, res, next) => {
+  try {
+    res.cookie('jwt', '', {
+      maxAge: -1,
+      httpOnly: true,
+      sameSite: true,
+    })
+      .send({ message: 'Вы успешно вышли из аккаунта' });
+  } catch (err) {
+    next(err);
+  }
 };

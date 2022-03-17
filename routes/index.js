@@ -2,7 +2,7 @@ const router = require('express').Router();
 const userRouter = require('./users');
 const movieRouter = require('./movies');
 const auth = require('../middlewares/auth');
-const { login, createUser } = require('../controllers/users');
+const { login, createUser, logout } = require('../controllers/users');
 const NotFoundError = require('../errors/NotFoundError');
 const { createUserValidator, loginValidator } = require('../middlewares/celebrate');
 
@@ -19,6 +19,7 @@ router.post(
 );
 
 router.use(auth);
+router.use('/signout', logout);
 router.use('/users', userRouter);
 router.use('/movies', movieRouter);
 
