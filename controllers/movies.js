@@ -33,6 +33,7 @@ module.exports.createMovies = (req, res, next) => {
   })
     .then((movie) => res.status(200).send(movie))
     .catch((err) => {
+      console.info(err);
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переднаны некорректные данные'));
       } else if (err.name === 'MongoError' && err.code === 11000) {
