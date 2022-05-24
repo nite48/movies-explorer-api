@@ -12,7 +12,7 @@ const errorHandler = require('./middlewares/error-handler');
 const limiter = require('./middlewares/limiter');
 const routes = require('./routes/index');
 
-mongoose.connect('mongodb://localhost:27017/moviesdb', {
+mongoose.connect('mongodb://localhost:27017/moviesdbfinal', {
   useNewUrlParser: true,
 }, (err) => {
   if (err) {
