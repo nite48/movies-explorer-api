@@ -30,7 +30,7 @@ module.exports.login = (req, res, next) => {
 
 module.exports.createUser = (req, res, next) => {
   console.info(req.body);
-  const { email, password, name } = req.body;
+  const { name, email, password } = req.body;
   bcrypt
     .hash(password, 10)
     .then((hash) => User.create({
